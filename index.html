@@ -122,8 +122,9 @@ function pokaz() {
 
     // Odtwarzanie muzyki przy losowaniu
     const muzyka = document.getElementById("muzyka");
+    muzyka.pause();
     muzyka.currentTime = 0;
-    muzyka.play();
+    muzyka.play().catch(e => console.log("Błąd odtwarzania:", e));
 
     div.style.opacity=1;
     div.innerHTML='<div class="animacja">🎁🎁🎁</div>';
