@@ -24,6 +24,18 @@ button:hover { background: #ffee55; transform: scale(1.05); }
 @keyframes shake { from { transform: translateX(-4px); } to { transform: translateX(4px); } }
 .snowflake { position: fixed; top: -10px; color: white; font-size: 18px; pointer-events: none; animation: fall linear infinite; }
 @keyframes fall { 0% { transform: translateY(-10px); opacity: 1; } 100% { transform: translateY(110vh); opacity: 0; } }
+
+/* Stopka */
+footer {
+    text-align: center;
+    padding: 15px 0;
+    background: rgba(0,0,0,0.3);
+    color: #ffe680;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    font-size: 18px;
+}
 </style>
 </head>
 <body>
@@ -39,9 +51,7 @@ button:hover { background: #ffee55; transform: scale(1.05); }
 </div>
 
 <script>
-// --------------------------
 // STAŁE KODY 4-CYFROWE
-// --------------------------
 const kody = {
     "Dominik": "4821",
     "Paulina": "7395",
@@ -53,23 +63,19 @@ const kody = {
     "Beata": "3916"
 };
 
-// --------------------------
 // STAŁE WYNIKI LOSOWANIA
-// --------------------------
 const wyniki = {
-    "Dominik": "Beata",
+    "Dominik": "Klaudia",
     "Paulina": "Leszek",
     "Rafał": "Paulina",
     "Klaudia": "Paweł",
-    "Paweł": "Klaudia",
+    "Paweł": "Beata",
     "Jowita": "Dominik",
     "Leszek": "Jowita",
     "Beata": "Rafał"
 };
 
-// --------------------------
 // UCZESTNICY I PARY
-// --------------------------
 const pary = [
     ["Dominik", "Paulina"],
     ["Rafał", "Klaudia"],
@@ -90,9 +96,7 @@ osoby.forEach(o => {
     select.appendChild(op);
 });
 
-// --------------------------
 // ANIMACJA ŚNIEGU
-// --------------------------
 function snow() {
     const s=document.createElement("div");
     s.className="snowflake"; s.innerHTML="❄";
@@ -104,9 +108,7 @@ function snow() {
 }
 setInterval(snow,120);
 
-// --------------------------
 // POKAZANIE WYNIKU
-// --------------------------
 function pokaz() {
     const osoba = document.getElementById("osoba").value;
     const kod = document.getElementById("kod").value;
@@ -124,6 +126,11 @@ function pokaz() {
     },1800);
 }
 </script>
+
+<!-- Stopka -->
+<footer>
+    Strona stworzona przez Dominik Dorobisz
+</footer>
 
 </body>
 </html>
