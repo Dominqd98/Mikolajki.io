@@ -17,7 +17,8 @@ body {
     min-height: 100vh;
 }
 h1 { text-align: center; padding-top: 20px; font-size: 48px; color: #ffe680; }
-#panel { max-width: 600px; margin: 40px auto; background: rgba(255,255,255,0.15);
+#countdown { text-align:center; font-size:32px; color:#ffe680; margin-top:20px; }
+#panel { max-width: 600px; margin: 20px auto; background: rgba(255,255,255,0.15);
     backdrop-filter: blur(8px); padding: 25px; border-radius: 15px; border: 2px solid #ffcc66; }
 select, input { padding: 10px; font-size: 18px; width: 90%; border-radius: 8px; border: none; margin-top: 10px; }
 button { padding: 12px 25px; font-size: 20px; border-radius: 10px; border: none; background: #ffcc00; color: #660000; font-weight: bold; margin-top: 20px; cursor: pointer; transition: 0.2s; }
@@ -41,6 +42,7 @@ footer {
 <body>
 
 <h1>🎅 Mikołajki – sprawdź swój prezent 🎄</h1>
+<div id="countdown"></div>
 
 <div id="panel">
     <h2 style="text-align:center;">Wybierz swoje imię i wpisz kod</h2>
@@ -66,19 +68,19 @@ const kody = {
     "Beata": "3916"
 };
 
-// STAŁE WYNIKI LOSOWANIA
+// STAŁE WYNIKI LOSOWANIA (nikt nie otrzymuje osoby ze swojej pary)
 const wyniki = {
-    "Dominik": "Klaudia",
+    "Dominik": "Beata",
     "Paulina": "Leszek",
-    "Rafał": "Paulina",
+    "Rafał": "Jowita",
     "Klaudia": "Paweł",
-    "Paweł": "Beata",
-    "Jowita": "Dominik",
-    "Leszek": "Jowita",
-    "Beata": "Rafał"
+    "Paweł": "Klaudia",
+    "Jowita": "Rafał",
+    "Leszek": "Paulina",
+    "Beata": "Dominik"
 };
 
-// UCZESTNICY I PARY
+// UCZESTNICY I PARY (osoby, które nie mogą wylosować siebie nawzajem)
 const pary = [
     ["Dominik", "Paulina"],
     ["Rafał", "Klaudia"],
@@ -133,9 +135,31 @@ function pokaz() {
         <span style="font-size:36px; color:#ffe680;">${wyniki[osoba]}</span> 🎁`;
     },1800);
 }
+
+// ODLICZANIE DO WIGILII (24 grudnia, godz. 18:00)
+function updateCountdown() {
+    const now = new Date();
+    let year = now.getFullYear();
+    const wigilia = new Date(`December 24, ${year} 18:00:00`);
+    
+    if(now > wigilia) {
+        wigilia.setFullYear(year + 1);
+    }
+
+    const diff = wigilia - now;
+    const dni = Math.floor(diff / (1000*60*60*24));
+    const godz = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    const min = Math.floor((diff % (1000*60*60)) / (1000*60));
+    const sek = Math.floor((diff % (1000*60)) / 1000);
+
+    document.getElementById("countdown").innerHTML =
+        `⏰ Do Wigilii pozostało: ${dni} dni ${godz} godz ${min} min ${sek} sek`;
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
 </script>
 
 <footer>Strona stworzona przez Dominik Dorobisz</footer>
-
 </body>
 </html>
