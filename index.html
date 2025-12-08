@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Mikołajki – losowanie z ustalonymi kodami</title>
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Mountains of Christmas', cursive;
+        background: linear-gradient(#b30000, #660000);
+        color: white;
+        text-shadow: 1px 1px 3px black;
+        margin: 0; padding: 0;
+        overflow-x: hidden;
+    }
+    h1 { text-align: center; padding-top: 20px; font-size: 48px; color: #ffe680; }
+    #panel { max-width: 600px; margin: 40px auto; background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(8px); padding: 25px; border-radius: 15px; border: 2px solid #ffcc66; }
+    select, input { padding: 10px; font-size: 18px; width: 90%; border-radius: 8px; border: none; margin-top: 10px; }
+    button { padding: 12px 25px; font-size: 20px; border-radius: 10px; border: none; background: #ffcc00; color: #660000; font-weight: bold; margin-top: 20px; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #ffee55; transform: scale(1.05); }
+    #wynik { margin-top: 25px; font-size: 28px; text-align: center; min-height: 40px; opacity: 0; transition: opacity 1s; }
+    .animacja { font-size: 40px; text-align: center; animation: shake 0.12s infinite alternate; }
+    @keyframes shake { from { transform: translateX(-4px); } to { transform: translateX(4px); } }
+    .snowflake { position: fixed; top: -10px; color: white; font-size: 18px; pointer-events: none; animation: fall linear infinite; }
+    @keyframes fall { 0% { transform: translateY(-10px); opacity: 1; } 100% { transform: translateY(110vh); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<h1>🎅 Mikołajki – sprawdź swój prezent 🎄</h1>
+
+<div id="panel">
+    <h2 style="text-align:center;">Wybierz swoje imię i wpisz kod</h2>
+    <select id="osoba"><option value="">-- wybierz imię --</option></select>
+    <input id="kod" type="password" placeholder="4-cyfrowy kod">
+    <button onclick="pokaz()">Pokaż wynik</button>
+    <div id="wynik"></div>
+</div>
+
+<script>
+// --------------------------
+// KONFIGURACJA STAŁYCH KODÓW
+// --------------------------
+const kody = {
+    "Dominik": "4821",
+    "Paulina": "7395",
+    "Rafał": "2567",
+    "Klaudia": "9143",
+    "Paweł": "6382",
+    "Jowita": "1279",
+    "Leszek": "8054",
+    "Beata": "3916"
+};
+
+// --------------------------
+// KONFIGURACJA UCZESTNIKÓW
+// --------------------------
+const pary = [
+    ["Dominik", "Paulina"],
+    ["Rafał", "Klaudia"],
+    ["Paweł", "Jowita"],
+    ["Leszek", "Beata"]
+];
+
+const osoby = pary.flat();
+const partnerMap = {};
+pary.forEach(([a,b]) => { partnerMap[a]=b; partnerMap[b]=a; });
+
+// Wypełnienie listy select
+const select = document.getElementById("osoba");
+osoby.forEach(o => {
+    const op = document.createElement("option");
+    op.value = o;
+    op.textContent = o;
+    select.appendChild(op);
+});
+
+// --------------------------
+// LOSOWANIE PAR
+// --------------------------
+function generujLosowanie() {
+    let dawcy = [...osoby];
+    let biorcy = [...osoby];
+    function probuj() {
+        let przypisania = {};
+        let dostępni = [...biorcy];
+        for (let osoba of dawcy) {
+            let możliwi = dostępni.filter(x => x!==osoba && x!==partnerMap[osoba]);
+            if(możliwi.length===0) return null;
+            let wybrany = możliwi[Math.floor(Math.random()*możliwi.length)];
+            przypisania[osoba]=wybrany;
+            dostępni.splice(dostępni.indexOf(wybrany),1);
+        }
+        return przypisania;
+    }
+    let wynik;
+    while(!(wynik=probuj())){}
+    return wynik;
+}
+const wyniki = generujLosowanie();
+
+// --------------------------
+// ANIMACJA ŚNIEGU
+// --------------------------
+function snow() {
+    const s=document.createElement("div");
+    s.className="snowflake"; s.innerHTML="❄";
+    s.style.left=Math.random()*100+"vw";
+    s.style.fontSize=(Math.random()*12+10)+"px";
+    s.style.animationDuration=(Math.random()*3+4)+"s";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),7000);
+}
+setInterval(snow,120);
+
+// --------------------------
+// POKAZANIE WYNIKU
+// --------------------------
+function pokaz() {
+    const osoba = document.getElementById("osoba").value;
+    const kod = document.getElementById("kod").value;
+    const div = document.getElementById("wynik");
+    if(!osoba){div.innerHTML="⚠️ Wybierz imię!"; div.style.opacity=1; return;}
+    if(!kod){div.innerHTML="⚠️ Wpisz kod!"; div.style.opacity=1; return;}
+    if(kody[osoba]!==kod){div.innerHTML="❌ Niepoprawny kod!"; div.style.opacity=1; return;}
+
+    div.style.opacity=1;
+    div.innerHTML='<div class="animacja">🎁🎁🎁</div>';
+
+    setTimeout(()=>{
+        div.innerHTML=`🎄 <b>${osoba}</b>, Twoja osoba to:<br><br>
+        <span style="font-size:36px; color:#ffe680;">${wyniki[osoba]}</span> 🎁`;
+    },1800);
+}
+</script>
+
+</body>
+</html>
