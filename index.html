@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Mikołajki – stałe przypisanie osób</title>
+<title>Mikołajki – przypisane wyniki na stałe</title>
 <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body {
@@ -54,6 +54,20 @@ const kody = {
 };
 
 // --------------------------
+// STAŁE WYNIKI LOSOWANIA
+// --------------------------
+const wyniki = {
+    "Dominik": "Beata",
+    "Paulina": "Leszek",
+    "Rafał": "Paulina",
+    "Klaudia": "Paweł",
+    "Paweł": "Klaudia",
+    "Jowita": "Dominik",
+    "Leszek": "Jowita",
+    "Beata": "Rafał"
+};
+
+// --------------------------
 // UCZESTNICY I PARY
 // --------------------------
 const pary = [
@@ -75,35 +89,6 @@ osoby.forEach(o => {
     op.textContent = o;
     select.appendChild(op);
 });
-
-// --------------------------
-// STAŁE LOSOWANIE (jednorazowe przypisanie)
-// --------------------------
-function generujStałeLosowanie() {
-    let dawcy = [...osoby];
-    let biorcy = [...osoby];
-    let przypisania = {};
-
-    function probuj() {
-        przypisania = {};
-        let dostępni = [...biorcy];
-        for(let osoba of dawcy) {
-            let możliwi = dostępni.filter(x => x!==osoba && x!==partnerMap[osoba]);
-            if(możliwi.length===0) return false;
-            let wybrany = możliwi[Math.floor(Math.random()*możliwi.length)];
-            przypisania[osoba]=wybrany;
-            dostępni.splice(dostępni.indexOf(wybrany),1);
-        }
-        return true;
-    }
-
-    while(!probuj()){}
-    return przypisania;
-}
-
-// PRZYPISANIE STAŁE
-const wyniki = generujStałeLosowanie();
-console.log("Wyniki (dla organizatora):", wyniki);
 
 // --------------------------
 // ANIMACJA ŚNIEGU
