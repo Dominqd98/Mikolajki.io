@@ -12,6 +12,9 @@ body {
     text-shadow: 1px 1px 3px black;
     margin: 0; padding: 0;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 h1 { text-align: center; padding-top: 20px; font-size: 48px; color: #ffe680; }
 #panel { max-width: 600px; margin: 40px auto; background: rgba(255,255,255,0.15);
@@ -21,21 +24,18 @@ button { padding: 12px 25px; font-size: 20px; border-radius: 10px; border: none;
 button:hover { background: #ffee55; transform: scale(1.05); }
 #wynik { margin-top: 25px; font-size: 28px; text-align: center; min-height: 40px; opacity: 0; transition: opacity 1s; }
 .animacja { font-size: 40px; text-align: center; animation: shake 0.12s infinite alternate; }
-@keyframes shake { from { transform: translateX(-4px); } to { transform: translateX(4px); } }
 .snowflake { position: fixed; top: -10px; color: white; font-size: 18px; pointer-events: none; animation: fall linear infinite; }
-@keyframes fall { 0% { transform: translateY(-10px); opacity: 1; } 100% { transform: translateY(110vh); opacity: 0; } }
-
-/* Stopka */
 footer {
     text-align: center;
     padding: 15px 0;
     background: rgba(0,0,0,0.3);
+    margin-top: auto;
+    font-size: 16px;
     color: #ffe680;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-    font-size: 18px;
+    border-top: 2px solid #ffcc66;
 }
+@keyframes shake { from { transform: translateX(-4px); } to { transform: translateX(4px); } }
+@keyframes fall { 0% { transform: translateY(-10px); opacity: 1; } 100% { transform: translateY(110vh); opacity: 0; } }
 </style>
 </head>
 <body>
@@ -49,6 +49,9 @@ footer {
     <button onclick="pokaz()">Pokaż wynik</button>
     <div id="wynik"></div>
 </div>
+
+<!-- Muzyka do losowania -->
+<audio id="muzyka" src="swiatowa-melodia.mp3"></audio>
 
 <script>
 // STAŁE KODY 4-CYFROWE
@@ -117,9 +120,13 @@ function pokaz() {
     if(!kod){div.innerHTML="⚠️ Wpisz kod!"; div.style.opacity=1; return;}
     if(kody[osoba]!==kod){div.innerHTML="❌ Niepoprawny kod!"; div.style.opacity=1; return;}
 
+    // Odtwarzanie muzyki przy losowaniu
+    const muzyka = document.getElementById("muzyka");
+    muzyka.currentTime = 0;
+    muzyka.play();
+
     div.style.opacity=1;
     div.innerHTML='<div class="animacja">🎁🎁🎁</div>';
-
     setTimeout(()=>{
         div.innerHTML=`🎄 <b>${osoba}</b>, Twoja osoba to:<br><br>
         <span style="font-size:36px; color:#ffe680;">${wyniki[osoba]}</span> 🎁`;
@@ -127,10 +134,7 @@ function pokaz() {
 }
 </script>
 
-<!-- Stopka -->
-<footer>
-    Strona stworzona przez Dominik Dorobisz
-</footer>
+<footer>Strona stworzona przez Dominik Dorobisz</footer>
 
 </body>
 </html>
