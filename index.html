@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Mikołajki – przypisane wyniki na stałe</title>
+<title>Mikołajki – losowanie z zasadami</title>
 <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body {
@@ -19,11 +19,12 @@ body {
 h1 { text-align: center; padding-top: 20px; font-size: 48px; color: #ffe680; }
 #countdown { text-align:center; font-size:32px; color:#ffe680; margin-top:20px; }
 #panel { max-width: 600px; margin: 20px auto; background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(8px); padding: 25px; border-radius: 15px; border: 2px solid #ffcc66; }
-select, input { padding: 10px; font-size: 18px; width: 90%; border-radius: 8px; border: none; margin-top: 10px; }
-button { padding: 12px 25px; font-size: 20px; border-radius: 10px; border: none; background: #ffcc00; color: #660000; font-weight: bold; margin-top: 20px; cursor: pointer; transition: 0.2s; }
+    backdrop-filter: blur(8px); padding: 25px; border-radius: 15px; border: 2px solid #ffcc66; text-align: center; }
+select, input { padding: 10px; font-size: 18px; width: 90%; border-radius: 8px; border: none; margin-top: 10px; box-sizing: border-box; }
+.buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+button { padding: 12px 22px; font-size: 20px; border-radius: 10px; border: none; background: #ffcc00; color: #660000; font-weight: bold; cursor: pointer; transition: 0.2s; }
 button:hover { background: #ffee55; transform: scale(1.05); }
-#wynik { margin-top: 25px; font-size: 28px; text-align: center; min-height: 40px; opacity: 0; transition: opacity 1s; }
+#wynik { margin-top: 25px; font-size: 28px; text-align: center; min-height: 40px; opacity: 0; transition: opacity 0.6s; }
 .animacja { font-size: 40px; text-align: center; animation: shake 0.12s infinite alternate; }
 .snowflake { position: fixed; top: -10px; color: white; font-size: 18px; pointer-events: none; animation: fall linear infinite; }
 footer {
@@ -48,7 +49,10 @@ footer {
     <h2 style="text-align:center;">Wybierz swoje imię i wpisz kod</h2>
     <select id="osoba"><option value="">-- wybierz imię --</option></select>
     <input id="kod" type="password" placeholder="4-cyfrowy kod">
-    <button onclick="pokaz()">Pokaż wynik</button>
+    <div class="buttons">
+        <button onclick="pokaz()">Pokaż wynik</button>
+        <button type="button" id="muteBtn" onclick="toggleMute()">🔊 Muzyka</button>
+    </div>
     <div id="wynik"></div>
 </div>
 
@@ -60,40 +64,65 @@ footer {
 const kody = {
     "Dominik": "4821",
     "Paulina": "7395",
-    "Rafał": "2567",
-    "Klaudia": "9143",
-    "Paweł": "6382",
     "Jowita": "1279",
+    "Paweł": "6382",
+    "Klaudia": "9143",
+    "Rafał": "2567",
     "Leszek": "8054",
     "Beata": "3916"
 };
 
-// STAŁE WYNIKI LOSOWANIA (nikt nie otrzymuje osoby ze swojej pary)
-const wyniki = {
-    "Dominik": "Beata",
-    "Paulina": "Leszek",
-    "Rafał": "Jowita",
-    "Klaudia": "Paweł",
-    "Paweł": "Klaudia",
-    "Jowita": "Rafał",
-    "Leszek": "Paulina",
-    "Beata": "Dominik"
-};
-
-// UCZESTNICY I PARY (osoby, które nie mogą wylosować siebie nawzajem)
+// PARY (nie mogą wylosować siebie nawzajem)
 const pary = [
     ["Dominik", "Paulina"],
-    ["Rafał", "Klaudia"],
-    ["Paweł", "Jowita"],
+    ["Jowita", "Paweł"],
+    ["Klaudia", "Rafał"],
     ["Leszek", "Beata"]
 ];
 
 const osoby = pary.flat();
 const partnerMap = {};
-pary.forEach(([a,b]) => { partnerMap[a]=b; partnerMap[b]=a; });
+pary.forEach(([a, b]) => {
+    partnerMap[a] = b;
+    partnerMap[b] = a;
+});
+
+// USTALONE WYNIKI + WALIDACJA REGUŁ W KODZIE
+const wyniki = {
+    "Dominik": "Klaudia",
+    "Paulina": "Jowita",
+    "Jowita": "Beata",
+    "Paweł": "Rafał",
+    "Klaudia": "Leszek",
+    "Rafał": "Dominik",
+    "Leszek": "Paulina",
+    "Beata": "Paweł"
+};
+
+function walidujLosowanie(mapaWynikow) {
+    const wylosowani = Object.values(mapaWynikow);
+    const unikalni = new Set(wylosowani);
+    if (wylosowani.length !== osoby.length || unikalni.size !== osoby.length) {
+        console.error("Błąd losowania: powtórzenia lub brakujące osoby.");
+        return false;
+    }
+    for (const dawca of osoby) {
+        const odbiorca = mapaWynikow[dawca];
+        if (!odbiorca || dawca === odbiorca || partnerMap[dawca] === odbiorca) {
+            console.error(`Błąd reguły dla ${dawca} -> ${odbiorca}`);
+            return false;
+        }
+    }
+    return true;
+}
+
+const losowaniePoprawne = walidujLosowanie(wyniki);
 
 // Wypełnienie select
 const select = document.getElementById("osoba");
+const kodInput = document.getElementById("kod");
+const wynikDiv = document.getElementById("wynik");
+
 osoby.forEach(o => {
     const op = document.createElement("option");
     op.value = o;
@@ -101,39 +130,63 @@ osoby.forEach(o => {
     select.appendChild(op);
 });
 
+select.addEventListener("change", () => {
+    kodInput.value = "";
+    wynikDiv.style.opacity = 0;
+    wynikDiv.innerHTML = "";
+});
+
+kodInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        pokaz();
+    }
+});
+
 // ANIMACJA ŚNIEGU
 function snow() {
-    const s=document.createElement("div");
-    s.className="snowflake"; s.innerHTML="❄";
-    s.style.left=Math.random()*100+"vw";
-    s.style.fontSize=(Math.random()*12+10)+"px";
-    s.style.animationDuration=(Math.random()*3+4)+"s";
+    const s = document.createElement("div");
+    s.className = "snowflake";
+    s.innerHTML = "❄";
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.fontSize = (Math.random() * 12 + 10) + "px";
+    s.style.animationDuration = (Math.random() * 3 + 4) + "s";
     document.body.appendChild(s);
-    setTimeout(()=>s.remove(),7000);
+    setTimeout(() => s.remove(), 7000);
 }
-setInterval(snow,120);
+setInterval(snow, 120);
+
+function toggleMute() {
+    const muzyka = document.getElementById("muzyka");
+    const btn = document.getElementById("muteBtn");
+    muzyka.muted = !muzyka.muted;
+    btn.textContent = muzyka.muted ? "🔇 Wyciszono" : "🔊 Muzyka";
+}
 
 // POKAZANIE WYNIKU
 function pokaz() {
-    const osoba = document.getElementById("osoba").value;
-    const kod = document.getElementById("kod").value;
-    const div = document.getElementById("wynik");
-    if(!osoba){div.innerHTML="⚠️ Wybierz imię!"; div.style.opacity=1; return;}
-    if(!kod){div.innerHTML="⚠️ Wpisz kod!"; div.style.opacity=1; return;}
-    if(kody[osoba]!==kod){div.innerHTML="❌ Niepoprawny kod!"; div.style.opacity=1; return;}
+    const osoba = select.value;
+    const kod = kodInput.value.trim();
 
-    // Odtwarzanie muzyki przy losowaniu
+    if (!losowaniePoprawne) {
+        wynikDiv.innerHTML = "⚠️ Błąd konfiguracji losowania!";
+        wynikDiv.style.opacity = 1;
+        return;
+    }
+    if (!osoba) { wynikDiv.innerHTML = "⚠️ Wybierz imię!"; wynikDiv.style.opacity = 1; return; }
+    if (!kod) { wynikDiv.innerHTML = "⚠️ Wpisz kod!"; wynikDiv.style.opacity = 1; return; }
+    if (kody[osoba] !== kod) { wynikDiv.innerHTML = "❌ Niepoprawny kod!"; wynikDiv.style.opacity = 1; return; }
+
     const muzyka = document.getElementById("muzyka");
     muzyka.pause();
     muzyka.currentTime = 0;
     muzyka.play().catch(e => console.log("Błąd odtwarzania:", e));
 
-    div.style.opacity=1;
-    div.innerHTML='<div class="animacja">🎁🎁🎁</div>';
-    setTimeout(()=>{
-        div.innerHTML=`🎄 <b>${osoba}</b>, Twoja osoba to:<br><br>
+    wynikDiv.style.opacity = 1;
+    wynikDiv.innerHTML = '<div class="animacja">🎁🎁🎁</div>';
+    setTimeout(() => {
+        wynikDiv.innerHTML = `🎄 <b>${osoba}</b>, Twoja osoba to:<br><br>
         <span style="font-size:36px; color:#ffe680;">${wyniki[osoba]}</span> 🎁`;
-    },1800);
+    }, 1800);
 }
 
 // ODLICZANIE DO WIGILII (24 grudnia, godz. 18:00)
@@ -141,23 +194,22 @@ function updateCountdown() {
     const now = new Date();
     let year = now.getFullYear();
     const wigilia = new Date(`December 24, ${year} 18:00:00`);
-    
-    if(now > wigilia) {
+
+    if (now > wigilia) {
         wigilia.setFullYear(year + 1);
     }
 
     const diff = wigilia - now;
-    const dni = Math.floor(diff / (1000*60*60*24));
-    const godz = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-    const min = Math.floor((diff % (1000*60*60)) / (1000*60));
-    const sek = Math.floor((diff % (1000*60)) / 1000);
+    const dni = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const godz = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const min = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const sek = Math.floor((diff % (1000 * 60)) / 1000);
 
     document.getElementById("countdown").innerHTML =
         `⏰ Do Wigilii pozostało: ${dni} dni ${godz} godz ${min} min ${sek} sek`;
 }
 setInterval(updateCountdown, 1000);
 updateCountdown();
-
 </script>
 
 <footer>Strona stworzona przez Dominik Dorobisz</footer>
